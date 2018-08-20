@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		input {
+			width: 200px;
+			height: 35px;
+			border: 1px solid #C7C7C7;
+
+		}
+
+		ul li {
+			list-style-type: none;
+			border: 1px solid #CCCCCC;
+			color: #A8A8A8;
+			width: 200px;
+			height: 28px;
+		}
+
+		ul li:hover,
+		.active {
+			background-color: #EEA9B8
+		}
+
+		.first {
+			background-color: aqua;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wrapper">
+		<input id="email-input" type="text" autofocus>
+		<ul id="email-sug-wrapper" class="email-sug"></ul>
+	</div>
+</body>
+<script>
+	var postfixList = ['163.com', 'gmail.com', '126.com', 'qq.com', '263.net'];
+	var val = document.querySelector("#email-input");
+	var ul = document.querySelector("#email-sug-wrapper");
+	//点击事件
+	ul.addEventListener("click", function () {
+		val.value = HTMLDecode(event.target.innerHTML);
+		dis("");
+		val.focus();
+	});
+	val.oninput = function () {
+		//去除前后空格
+		var value = event.target.value.trim();
+		bulid(value);
+		ul.children[0].className = "first";
+		dis(value);
+	};
+
+	//按键
+	var index = 0;
+	val.onkeydown = function (e) {
+		// Esc 键
+		if (e.keyCode == 27) {
+			val.select();
+		}
+		//回车
+		if (e.keyCode == 13) {
+			val.value = HTMLDecode(ul.children[index].innerHTML);
+			dis("");
+		}
+		// 上键
+		if (e.keyCode == 38) {
+			if (index == 0) {
+				index = 4;
+				reset(index);
+			} else {
+				index--;
+				reset(index);
+			}
+		}
+		// 下键
+		if (e.keyCode == 40) {
+			if (index == 4) {
+				index = 0;
+				reset(index);
+			} else {
+				index++;
+				reset(index);
+			}
+		}
+	};
+	//控制显示
+	function dis(v) {
+		if (v != "") {
+			ul.style.display = "block";
+		} else {
+			ul.style.display = "none";
+		}
+	}
+	//生成列表、对@进行处理
+	function bulid(v) {
+		var list = "";
+		var first = "";
+		var last = "";
+		if (v.indexOf("@") != -1) {
+			first = v.slice(0, v.indexOf("@"));
+			last = v.slice(v.indexOf("@") + 1);
+		} else {
+			first = v;
+		}
+		for (var i = 0; i < postfixList.length; i++) {
+			if (postfixList[i].indexOf(last) != -1) {
+				list += "<li>" + HTMLEncode(first + "@" + postfixList[i]) + "</li>";
+			}
+		}
+		ul.innerHTML = list;
+	}
+	// HTML转义
+	function HTMLEncode(html) {
+		var temp = document.createElement("div");
+		(temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html);
+		var output = temp.innerHTML;
+		temp = null;
+		return output;
+	}
+	// HTML反转义
+	function HTMLDecode(text) {
+		var temp = document.createElement("div");
+		temp.innerHTML = text;
+		var output = temp.innerText || temp.textContent;
+		temp = null;
+		return output;
+	}
+	//重置样式
+	function reset(index) {
+		for (var i = 0; i < postfixList.length; i++) {
+			ul.children[i].className = "";
+		}
+		ul.children[index].className = "active";
+	}	
+</script>
+
+</html>
